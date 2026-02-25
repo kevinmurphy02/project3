@@ -7,4 +7,4 @@
 //
 //  No trailing slash. No /api at the end.
 //
-const API_BASE = "https://YOUR-RENDER-APP.onrender.com";
+const API_BASE = "project3-production-3a6a.up.railway.app";
