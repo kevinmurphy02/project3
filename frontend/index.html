@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameLog — Collection Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">GameLog</span>
+      </div>
+      <nav class="tabs">
+        <button id="tabList"  class="tab active" type="button">Library</button>
+        <button id="tabForm"  class="tab"         type="button">Add / Edit</button>
+        <button id="tabStats" class="tab"         type="button">Stats</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ── LIST VIEW ─────────────────────────────────────────────── -->
+    <section id="viewList" class="view">
+
+      <!-- Controls bar -->
+      <div class="controls">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input id="searchInput" type="search" placeholder="Search games…" autocomplete="off" />
+        </div>
+        <div class="filters">
+          <select id="filterStatus">
+            <option value="">All Statuses</option>
+            <option>Wishlist</option>
+            <option>Backlog</option>
+            <option>Playing</option>
+            <option>Completed</option>
+            <option>Dropped</option>
+          </select>
+          <select id="filterPlatform">
+            <option value="">All Platforms</option>
+            <option>PC</option>
+            <option>PlayStation</option>
+            <option>Xbox</option>
+            <option>Nintendo Switch</option>
+            <option>Mobile</option>
+            <option>Other</option>
+          </select>
+          <select id="sortSelect">
+            <option value="title|asc">Title A–Z</option>
+            <option value="title|desc">Title Z–A</option>
+            <option value="hours|desc">Most Played</option>
+            <option value="hours|asc">Least Played</option>
+            <option value="status|asc">Status</option>
+            <option value="created_at|desc">Newest</option>
+            <option value="created_at|asc">Oldest</option>
+          </select>
+        </div>
+        <button id="btnAddNew" class="btn-primary" type="button">+ Add Game</button>
+      </div>
+
+      <div id="listError" class="alert alert-error" hidden></div>
+
+      <!-- Cards grid -->
+      <div id="cardsGrid" class="cards-grid"></div>
+      <div id="emptyState" class="empty-state" hidden>
+        <div class="empty-icon">🎮</div>
+        <p>No games found. Try adjusting your filters.</p>
+      </div>
+      <div id="loadingState" class="loading-state" hidden>
+        <div class="spinner"></div>
+        <p>Loading your library…</p>
+      </div>
+
+      <!-- Paging -->
+      <div class="paging" id="pagingBar">
+        <div class="paging-left">
+          <label class="page-size-label">Show
+            <select id="pageSizeSelect">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+            per page
+          </label>
+        </div>
+        <div class="paging-center">
+          <button id="btnPrev" type="button" disabled>←</button>
+          <span id="pageIndicator">Page 1 of 1</span>
+          <button id="btnNext" type="button" disabled>→</button>
+        </div>
+        <div class="paging-right">
+          <span id="totalIndicator" class="total-count"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FORM VIEW ─────────────────────────────────────────────── -->
+    <section id="viewForm" class="view" hidden>
+      <div class="form-header">
+        <h2 id="formTitle">Add Game</h2>
+        <button id="btnCancel" class="btn-ghost" type="button">← Back to Library</button>
+      </div>
+
+      <div id="formBanner" class="alert alert-error" hidden></div>
+      <div id="formSuccess" class="alert alert-success" hidden></div>
+
+      <form id="itemForm" novalidate class="game-form">
+        <input type="hidden" id="itemId" />
+
+        <div class="form-grid">
+          <!-- Image preview -->
+          <div class="form-image-col">
+            <div class="img-preview-wrap">
+              <img id="imgPreview" src="https://placehold.co/300x200/1a2240/6aa7ff?text=No+Cover" alt="Cover preview" class="img-preview" />
+            </div>
+            <div class="field">
+              <label for="imageInput">Cover Image URL</label>
+              <input id="imageInput" type="url" placeholder="https://… (optional)" />
+              <div id="errImage" class="field-error" hidden>URL is too long (max 600 chars).</div>
+              <p class="field-hint">Paste a Steam header URL or any image URL. Leave blank for placeholder.</p>
+            </div>
+          </div>
+
+          <!-- Fields -->
+          <div class="form-fields-col">
+            <div class="field">
+              <label for="titleInput">Title <span class="req">*</span></label>
+              <input id="titleInput" type="text" maxlength="80" placeholder="e.g. Elden Ring" required />
+              <div id="errTitle" class="field-error" hidden>Title is required (2–80 chars).</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="platformInput">Platform <span class="req">*</span></label>
+                <select id="platformInput" required>
+                  <option value="">Select…</option>
+                  <option>PC</option>
+                  <option>PlayStation</option>
+                  <option>Xbox</option>
+                  <option>Nintendo Switch</option>
+                  <option>Mobile</option>
+                  <option>Other</option>
+                </select>
+                <div id="errPlatform" class="field-error" hidden>Platform is required.</div>
+              </div>
+
+              <div class="field">
+                <label for="statusInput">Status <span class="req">*</span></label>
+                <select id="statusInput" required>
+                  <option value="">Select…</option>
+                  <option>Wishlist</option>
+                  <option>Backlog</option>
+                  <option>Playing</option>
+                  <option>Completed</option>
+                  <option>Dropped</option>
+                </select>
+                <div id="errStatus" class="field-error" hidden>Status is required.</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="hoursInput">Hours Played <span class="req">*</span></label>
+              <input id="hoursInput" type="number" step="0.1" min="0" max="9999" placeholder="0" required />
+              <div id="errHours" class="field-error" hidden>Hours must be 0–9999.</div>
+            </div>
+
+            <div class="form-actions">
+              <button id="btnSave" class="btn-primary" type="submit">Save Game</button>
+              <button type="reset" class="btn-ghost">Reset</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ── STATS VIEW ────────────────────────────────────────────── -->
+    <section id="viewStats" class="view" hidden>
+      <h2 class="section-title">Library Stats</h2>
+      <div id="statsError"   class="alert alert-error" hidden></div>
+      <div id="statsLoading" class="loading-state"     hidden>
+        <div class="spinner"></div><p>Loading stats…</p>
+      </div>
+
+      <div class="stat-cards">
+        <div class="stat-card stat-accent">
+          <div class="stat-label">Total Games</div>
+          <div id="statTotal" class="stat-value">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completion Rate</div>
+          <div id="statCompletion" class="stat-value">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Hours</div>
+          <div id="statHours" class="stat-value">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Hours (Completed)</div>
+          <div id="statAvgHours" class="stat-value">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Current Page Size</div>
+          <div id="statPageSize" class="stat-value">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Most Played</div>
+          <div id="statMostPlayed" class="stat-value stat-value--sm">—</div>
+        </div>
+      </div>
+
+      <div class="breakdown-grid">
+        <div class="breakdown-card">
+          <h3>By Status</h3>
+          <div id="byStatus"></div>
+        </div>
+        <div class="breakdown-card">
+          <h3>By Platform</h3>
+          <div id="byPlatform"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
